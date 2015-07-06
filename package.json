@@ -1,0 +1,26 @@
+{
+  "name": "muttrd",
+  "version": "1.0.0",
+  "description": "muttr service dameon",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha test/**"
+  },
+  "keywords": [
+    "muttr",
+    "daemon",
+    "service"
+  ],
+  "author": "Gordon Hall <gordon@gordonwritescode.com>",
+  "license": "GPLv3",
+  "dependencies": {
+    "async": "^1.2.1",
+    "colors": "^1.1.2",
+    "ipsee": "0.0.2",
+    "leveldown": "^1.3.0",
+    "levelup": "^1.2.1",
+    "merge": "^1.2.0",
+    "muttr": "0.0.0",
+    "toml": "^2.2.3"
+  }
+}

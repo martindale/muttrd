@@ -129,11 +129,11 @@ Muttrd.prototype._bindIPCInterface = function(callback) {
 Muttrd.prototype._createSession = function(callback) {
   log('Preparing session...');
 
-  this.session = new muttr.Session(this.identity, this.connection, {
-    requestOptions: {
-      rejectUnauthorized: !this.config.promiscuous
-    }
-  });
+  if (this.config.promiscuous === true) {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  }
+
+  this.session = new muttr.Session(this.identity, this.connection);
 
   this.session.on('ready', function() {
     log('----> Ready!');

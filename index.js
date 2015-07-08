@@ -15,6 +15,7 @@ var ipc = require('ipsee');
 var merge = require('merge');
 var path = require('path');
 var levelup = require('levelup');
+var nat = require('nat-upnp');
 
 util.inherits(Muttrd, events.EventEmitter);
 
@@ -47,7 +48,11 @@ function Muttrd(options) {
  * @param {Function} callback
  */
 Muttrd.prototype.start = function(callback) {
-  async.series(this._init(), callback);
+  async.series(this._init(), function(err) {
+    if (err) {
+      log('Error!', err);
+    }
+  });
 };
 
 /**
@@ -174,12 +179,43 @@ Muttrd.prototype._prepareIdentity = function(callback) {
  * @param {Function} callback
  */
 Muttrd.prototype._connectToNetwork = function(callback) {
-  this.connection = new muttr.Connection(merge(this.config.network, {
-    forwardPort: true,
-    storage: levelup(this.datadir('store'))
-  }));
+  var self = this;
+  var upnp = nat.createClient();
 
-  callback();
+  log(
+    'Creating port mapping from %s <--> %s...',
+    this.config.network.port,
+    this.config.network.port
+  );
+
+  upnp.portMapping({
+    ttl: 0,
+    public: this.config.network.port,
+    private: this.config.network.port
+  }, function(err) {
+    if (err) {
+      return callback(err);
+    }
+
+    log('----> Done!');
+    log('Resolving external IP address...');
+
+    upnp.externalIp(function(err, ip) {
+      if (err) {
+        return callback(err);
+      }
+
+      log('----> Done!');
+
+      self.config.network.address = ip;
+      self.connection = new muttr.Connection(merge(self.config.network, {
+        forwardPort: false,
+        storage: levelup(self.datadir('store'))
+      }));
+
+      callback();
+    });
+  });
 };
 
 /**

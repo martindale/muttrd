@@ -24,6 +24,7 @@
     "levelup": "^1.2.1",
     "merge": "^1.2.0",
     "muttr": "0.0.1",
+    "nat-upnp": "git://github.com/indutny/node-nat-upnp",
     "toml": "^2.2.3"
   }
 }

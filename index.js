@@ -88,6 +88,7 @@ Muttrd.prototype._bindIPCInterface = function(callback) {
     log('Sending message to %s...', data.to);
     self.session.send(data.to, data.message, function(err, msg) {
       log('----> %s', err ? 'Failed!' : 'Success!');
+      log(err);
       self.ipc.send(data.ref, {
         error: err ? err.message : null,
         result: msg
@@ -174,7 +175,7 @@ Muttrd.prototype._prepareIdentity = function(callback) {
  */
 Muttrd.prototype._connectToNetwork = function(callback) {
   this.connection = new muttr.Connection(merge(this.config.network, {
-    //forwardPort: true,
+    forwardPort: true,
     storage: levelup(this.datadir('store'))
   }));
 

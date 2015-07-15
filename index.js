@@ -182,6 +182,19 @@ Muttrd.prototype._connectToNetwork = function(callback) {
   var self = this;
   var upnp = nat.createClient();
 
+  if (this.config.passive) {
+    return callback();
+  }
+
+  if (!this.config.network.portmap) {
+    self.connection = new muttr.Connection(merge(self.config.network, {
+      forwardPort: false,
+      storage: levelup(self.datadir('store'))
+    }));
+
+    return callback();
+  }
+
   log(
     'Creating port mapping from %s <--> %s...',
     this.config.network.port,
@@ -189,23 +202,22 @@ Muttrd.prototype._connectToNetwork = function(callback) {
   );
 
   upnp.portMapping({
-    ttl: 0,
     public: this.config.network.port,
-    private: this.config.network.port
+    private: this.config.network.port,
+    ttl: 0
   }, function(err) {
     if (err) {
-      return callback(err);
+      log('----> Failed!');
+      log('Session will be initialized in "passive" mode');
+      return callback();
     }
-
-    log('----> Done!');
-    log('Resolving external IP address...');
 
     upnp.externalIp(function(err, ip) {
       if (err) {
-        return callback(err);
+        log('----> Failed!');
+        log('Session will be initialized in "passive" mode');
+        return callback();
       }
-
-      log('----> Done!');
 
       self.config.network.address = ip;
       self.connection = new muttr.Connection(merge(self.config.network, {

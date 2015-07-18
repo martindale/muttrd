@@ -82,6 +82,10 @@ Muttrd.prototype._init = function() {
 Muttrd.prototype._bindIPCInterface = function(callback) {
   var self = this;
 
+  if (fs.existsSync('/tmp/muttrd-svc.sock')) {
+    fs.unlinkSync('/tmp/muttrd-svc.sock');
+  }
+
   this.ipc = ipc('muttrd', { uid: 'svc' }).subscribe();
 
   this.session.on('message', function(message) {
